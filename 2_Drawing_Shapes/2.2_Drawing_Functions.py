@@ -1,7 +1,7 @@
 import math
 import random
 import pygame
-from pygame.locals import *
+#from pygame.locals import *
 
 # color dictionary
 colours = {
@@ -57,12 +57,12 @@ c1, c2 = 450, 300
 while True:
     # some real cool shit why not
     while radius > 0:
-        pygame.time.delay(1)
+        pygame.time.delay(10)
         # choose random colour to paint
         thisColour = random.choice(list(colours.keys()))
         drawHexagon(c1, c2 ,radius,angle,thisColour)
         # update drawing conditions
-        angle = angle - 15
+        angle = angle - 5
         radius = radius - 4
         # offset the center of window
         c1 = c1 - 300
