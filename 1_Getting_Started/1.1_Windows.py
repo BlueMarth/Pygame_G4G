@@ -1,5 +1,4 @@
 import pygame
-
 pygame.init()
 
 # create window, get size, close window
