@@ -40,7 +40,7 @@ while True:
         if event.button == 2:
             middle_click = middle_click
             # scale the image smaller
-            img = pygame.transform.scale(img, (60, 60))
+            
             pygame.display.update()
     
     if event.type == MOUSEBUTTONUP:
