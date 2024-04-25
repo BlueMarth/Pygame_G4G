@@ -19,7 +19,7 @@ screen.fill("gray")
 timer = pygame.time.Clock()
 
 pygame.display.set_caption("Custom Events")
-pygame.display.set_icon(pygame.image.load("github_icon.png"))
+pygame.display.set_icon(pygame.image.load("visual/github_icon.png"))
 
 # custom events
 CHANGE_COLOUR = pygame.USEREVENT + 1

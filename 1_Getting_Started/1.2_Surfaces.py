@@ -17,7 +17,7 @@ pygame.draw.rect(surface, paint,
                  pygame.Rect(30, 30, 90, 60))
 
 # load an image in the centre of the window
-image = pygame.image.load('github_icon.png')
+image = pygame.image.load('visual/github_icon.png')
 w, h = image.get_size()
 w, h = int(x/2-w/2), int(y/2-h/2)
 surface.blit(image, (w, h))

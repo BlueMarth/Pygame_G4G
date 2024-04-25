@@ -65,7 +65,7 @@ while run:
             run = False
         # draw small triangle when LMB pressed
         elif event.type == MOUSEBUTTONDOWN:
-            position = event.pos
+            position = event.pos()
             draw_positions.append(position)
             brush_size = int(random.uniform(5,25))
             tilt = int(random.uniform(0,120))

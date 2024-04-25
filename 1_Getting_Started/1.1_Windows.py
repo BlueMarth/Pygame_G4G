@@ -20,7 +20,7 @@ pygame.display.flip()
 
 #set title & icon
 pygame.display.set_caption('G4G')
-icon = pygame.image.load('github_icon.png')
+icon = pygame.image.load('visual/github_icon.png')
 pygame.display.set_icon(icon)
 
 # main loop
