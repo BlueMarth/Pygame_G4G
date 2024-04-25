@@ -74,8 +74,8 @@ while running:
                 green_box.inflate_ip(-2, -2)
                 grow = green_box.width < 100
 
-        if event.type == CHANGE_COLOUR:
-            pass
+        #if event.type == CHANGE_COLOUR:
+        #    pass
 
         if event.type == pygame.QUIT:
             running = False
@@ -95,7 +95,7 @@ while running:
     pygame.draw.rect(screen, "green", green_box)
 
     pygame.display.update()
-    print(grow, red_box.width)
+    print(grow, red_box.width, blue_box.width, yellow_box.width, green_box.width)
     
     timer.tick(30) # frame per second
 
