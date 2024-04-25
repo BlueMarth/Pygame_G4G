@@ -7,9 +7,9 @@ pygame.init()
 size = screen_width, screen_height = 768, 432
 screen = pygame.display.set_mode((size))
 pygame.display.set_caption("Moving Objects")
-icon = pygame.image.load("github_icon.png")
+icon = pygame.image.load("visual/github_icon.png")
 pygame.display.set_icon(icon)
-img = pygame.image.load("mouse_hover.png")
+img = pygame.image.load("visual/mouse_hover.png")
 
 clicking = False
 right_clicking = False
@@ -29,15 +29,15 @@ while True:
     if event.type == MOUSEBUTTONDOWN:
         if event.button == 1: # left button
             clicking = True
-            img = pygame.image.load("mouse_hover.png")
+            img = pygame.image.load("visual/mouse_hover.png")
             pygame.display.update()
         if event.button == 3: # middle button
             right_clicking = True
-            img = pygame.image.load("mouse_click.png")
+            img = pygame.image.load("visual/mouse_click.png")
             pygame.display.update()
         if event.button == 2:
             middle_click = middle_click
-            img = pygame.transform.scale(img, (100, 100))
+            img = pygame.transform.scale(img, (50, 50))
             pygame.display.update()
     
     if event.type == MOUSEBUTTONUP:
