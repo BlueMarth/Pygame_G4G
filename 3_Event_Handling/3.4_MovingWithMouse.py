@@ -34,10 +34,13 @@ while True:
         if event.button == 3: # middle button
             right_clicking = True
             img = pygame.image.load("visual/mouse_click.png")
+            # flip the cursor about both axis
+            img = pygame.transform.flip(img, True, True)
             pygame.display.update()
         if event.button == 2:
             middle_click = middle_click
-            img = pygame.transform.scale(img, (50, 50))
+            # scale the image smaller
+            img = pygame.transform.scale(img, (60, 60))
             pygame.display.update()
     
     if event.type == MOUSEBUTTONUP:
