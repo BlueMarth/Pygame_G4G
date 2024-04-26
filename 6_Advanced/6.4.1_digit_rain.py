@@ -5,7 +5,7 @@ import math
 pygame.init()
 SIZE = [480, 270]
 screen = pygame.display.set_mode(SIZE)
-pygame.display.set_caption("Space odyssey")
+pygame.display.set_caption("Digit Rain")
 
 digitRain = []
 
@@ -29,9 +29,9 @@ while not done:
 
     for i in range(len(digitRain)):
         area = digitRain[i][2] * digitRain[i][3]
-        if area > 30:
+        if area > 9:
             color = "green"
-        elif area > 20:
+        elif area > 5:
             color = "green2"
         else:
             color = "green3"
