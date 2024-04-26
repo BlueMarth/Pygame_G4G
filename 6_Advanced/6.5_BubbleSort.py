@@ -11,13 +11,16 @@ x = 40
 y = 40
 
 width = 20
-height = []
-for i in range(14):
-    height.append(random.randrange(1, 250))
+# height = []
+# for i in range(14):
+#     height.append(random.randrange(1, 250))
+
+height = [200, 50, 130, 90, 250, 61, 110,
+            88, 33, 80, 70, 159, 180, 20]
 
 def show(height):
     for i in range(len(height)):
-        pygame.draw.rect(screen, "red", (x+30*i, y, width, height[i]))
+        pygame.draw.rect(screen, "red", (x + 30 * i, y, width, height[i]))
 
 while True:
     
@@ -28,7 +31,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
+            exit()
     
     if keys[pygame.K_SPACE]:
         execute = True
@@ -45,6 +48,7 @@ while True:
                     temp = height[j]
                     height[j] = height[j+1]
                     height[j+1] = temp
+                
                 screen.fill("black")
                 show(height)
                 pygame.time.delay(40)
