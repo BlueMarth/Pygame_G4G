@@ -8,8 +8,7 @@ screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption("Space")
 fps = 60
 
-color_list = ["white", "gray", "gray25", "gray50", "gray75",
-              "darkmagenta", "darkblue", "darkred"]
+color_list = ["gray15", "gray30", "gray45", "gray60"]
 stars = []
 
 for i in range(25):
@@ -50,7 +49,7 @@ while not done:
         stars[i][0] += stars[i][4] * dx
         stars[i][1] += stars[i][4] * dy
         stars[i][4] = dist * stars[i][2] / 40
-        stars[i][2] += math.sqrt(dist) // 60
+        stars[i][2] += math.sqrt(dist) / 80
 
         # reset star position once outside of window
         if (((stars[i][0] <= 0) or (stars[i][0] >= SIZE[0]))
