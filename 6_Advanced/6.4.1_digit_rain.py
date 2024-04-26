@@ -38,10 +38,8 @@ while not done:
         pygame.draw.rect(screen, color, digitRain[i])
         digitRain[i][1] += math.sqrt(area)/2
         if digitRain[i][1] > SIZE[1]:
-            y = random.randrange(-24, -12)
-            digitRain[i][1] = y
-            x = random.randrange(-2, SIZE[0] + 2)
-            digitRain[i][0] = x
+            digitRain[i][0] = random.randrange(-2, SIZE[0] + 2)
+            digitRain[i][1] = random.randrange(-24, -12)
     
     pygame.display.flip()
     clock.tick(60)
