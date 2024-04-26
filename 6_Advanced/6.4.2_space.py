@@ -10,7 +10,10 @@ pygame.display.set_caption("Space")
 stars = []
 
 for i in range(250):
-    x, y = SIZE[0]//2, SIZE[1]//2
+    mini_x = random.random(0,1)-0.5
+    mini_y = random.random(0,1)-0.5
+    x = SIZE[0]//2 + mini_x
+    y = SIZE[1]//2 + mini_y
     radius = random.randrange(1, 3)
     angle = random.randrange(0, 359)
     speed = radius
@@ -39,8 +42,6 @@ while not done:
         dy = (math.sin(stars[i][3] / 180 * math.pi))
         
         # the closer the faster
-        if dist < 1:
-            dist = 2
         
         stars[i][4] = dist * stars[i][2] / 30
         
