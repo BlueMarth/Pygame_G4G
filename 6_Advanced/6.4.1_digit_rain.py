@@ -3,17 +3,17 @@ import random
 import math
 
 pygame.init()
-SIZE = [480, 270]
+SIZE = [1024, 512]
 screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption("Digit Rain")
 
 digitRain = []
 
-for i in range(100):
-    x = random.randrange(0, SIZE[0])
+for i in range(10000):
+    x = random.randrange(0, SIZE[0], 10)
     y = random.randrange(0, SIZE[1])
-    w = random.randrange(1,3)
-    h = random.randrange(3,5)
+    w = random.randrange(1,4)
+    h = random.randrange(3,8)
     digitRain.append([x,y,w,h])
 
 clock = pygame.time.Clock()
@@ -36,10 +36,10 @@ while not done:
         else:
             color = "green3"
         pygame.draw.rect(screen, color, digitRain[i])
-        digitRain[i][1] += math.sqrt(area)/2
+        digitRain[i][1] += 2
         if digitRain[i][1] > SIZE[1]:
-            digitRain[i][0] = random.randrange(-2, SIZE[0] + 2)
-            digitRain[i][1] = random.randrange(-24, -12)
+            digitRain[i][0] = random.randrange(-2, SIZE[0] + 2, 10)
+            digitRain[i][1] = 0
     
     pygame.display.flip()
     clock.tick(60)
