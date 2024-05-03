@@ -61,6 +61,7 @@ while not done:
             stars[i][2] = random.randrange(1,3)
             stars[i][3] = random.randrange(0, 359)
 
+    print(stars)
     pygame.display.flip()
     clock.tick(fps)
 pygame.quit
