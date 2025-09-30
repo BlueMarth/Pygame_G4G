@@ -1,3 +1,12 @@
+# Vehicle acceleration, slow down, and braking simulation along a straight path
+
+""" 
+controls
+    W: accelerate
+    S: brake and reverse
+    space: hand brake
+"""
+
 import math
 import numpy as np
 import pygame
@@ -17,10 +26,12 @@ car_color = (255, 0, 0)  # Red
 car_x = 100
 car_y = 300
 velocity = 0
-acceleration = 0.125
+acceleration = 0.15
 max_velocity = 6
-reverse_max_velocity = -2  # Lower top speed for reverse
-friction = 0.98
+reverse_max_velocity = -2 # Lower top speed for reverse
+friction = 0.99
+reverse_friction = 0.96 # Stronger friction when reversing
+handbrake_strength = 0.9 # Deceleration per frame when handbrake (space) is pressed
 
 running = True
 # main loop
@@ -38,10 +49,19 @@ while running:
         velocity -= acceleration
         if velocity < reverse_max_velocity:
             velocity = reverse_max_velocity
+    elif keys[pygame.K_SPACE]:
+        # Hand brake: strong deceleration toward zero, no direction reversal
+        if velocity != 0:
+            velocity *= handbrake_strength
+        elif abs(velocity) < 1e-4:
+            velocity = 0
     else:
-        # Simple friction
-        velocity *= friction
-        if abs(velocity) < 0.01:
+        # Use higher friction when in reverse
+        if velocity < 0:
+            velocity *= reverse_friction
+        else:
+            velocity *= friction
+        if abs(velocity) < 1e-4:
             velocity = 0
 
     car_x += velocity

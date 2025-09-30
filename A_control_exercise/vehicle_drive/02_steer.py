@@ -16,7 +16,7 @@ car_color = (255, 0, 0)  # Red
 car_x = 400
 car_y = 300
 steer_angle = 0
-steer_speed = 2  # degrees per frame
+steer_speed = 4  # degrees per frame
 max_steer = 36  # max steering angle in degrees
 centering_speed = 2      # degrees per frame to return to center
 

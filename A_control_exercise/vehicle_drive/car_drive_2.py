@@ -1,3 +1,4 @@
+import os
 import math
 import numpy as np
 import pygame
@@ -13,6 +14,11 @@ clock = pygame.time.Clock()
 # sprite
 CAR_LENGTH = 100
 CAR_WIDTH = 40
+
+# Car image loading and scaling
+car_img_path = os.path.join('visual', 'red_car_top.png')
+car_img_raw = pygame.image.load(car_img_path).convert_alpha()
+car_img = pygame.transform.smoothscale(car_img_raw, (CAR_LENGTH, CAR_WIDTH))
 CAR_COLOR = (255, 0, 0)  # Red
 
 # Initial position (centered)
@@ -20,16 +26,23 @@ car_x = 100
 car_y = 300
 velocity = 0
 acceleration = 0.2
-max_velocity = 8
+max_velocity = 6
 reverse_max_velocity = -2  # Lower top speed for reverse
-friction = 0.97
+friction = 0.99
+reverse_friction = 0.97 # Stronger friction when reversing
+handbrake_strength = 0.9 # Deceleration per frame when handbrake (space) is pressed
 
 # Kinematic Bicycle Model parameters
-WHEELBASE = 40  # pixels (distance between axles)
+# Define distance from front bumper to front axle
+front_axle_offset = 0.1 * CAR_LENGTH
+# Center of rotation offset (20% from rear)
+rear_axle_offset = 0.2 * CAR_LENGTH
+# Calculate wheelbase as distance between axles
+WHEELBASE = CAR_LENGTH - front_axle_offset - rear_axle_offset
 car_angle = 0   # radians, heading
 steering_angle = 0  # radians
-max_steering_deg = 30
-steering_speed_deg = 2
+max_steering_deg = 35
+steering_speed_deg = 2.5
 max_steering = math.radians(max_steering_deg)
 steering_speed = math.radians(steering_speed_deg)
 
@@ -37,11 +50,8 @@ steering_speed = math.radians(steering_speed_deg)
 arrow_length = 80
 arrow_head_size = 16
 arrow_head_angle = math.pi / 8
-
-# Center of rotation offset (20% from rear)
-center_offset = 0.2 * CAR_LENGTH
-
 running = True
+dt = 1
 # main loop
 while running:
     for event in pygame.event.get():
@@ -51,26 +61,31 @@ while running:
     window.fill((30, 30, 30))  # Clear screen with dark gray
 
     keys = pygame.key.get_pressed()
-    # --- Acceleration/Reverse ---
-    if keys[pygame.K_w]:
+    # --- Acceleration ---
+    if keys[pygame.K_w] or keys[pygame.K_UP]:
         velocity += acceleration
         if velocity > max_velocity:
             velocity = max_velocity
-    elif keys[pygame.K_s]:
+    elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
         velocity -= acceleration
         if velocity < reverse_max_velocity:
             velocity = reverse_max_velocity
+    elif keys[pygame.K_SPACE]:
+        if velocity != 0:
+            velocity *= handbrake_strength
+        elif abs(velocity) < 1e-4:
+            velocity = 0
     else:
         velocity *= friction
-        if abs(velocity) < 0.01:
+        if abs(velocity) < 1e-4:
             velocity = 0
 
-    # --- Steering (separate kinematics) ---
-    if keys[pygame.K_a]:
+    # --- Steering ---
+    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
         steering_angle -= steering_speed
         if steering_angle < -max_steering:
             steering_angle = -max_steering
-    elif keys[pygame.K_d]:
+    elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
         steering_angle += steering_speed
         if steering_angle > max_steering:
             steering_angle = max_steering
@@ -86,36 +101,37 @@ while running:
                 steering_angle = 0
 
     # --- Kinematic Bicycle Model update ---
-    # Update position and heading using the model
-    # The reference point (car_x, car_y) is now 20% from the rear
-    car_x += velocity * math.cos(car_angle)
-    car_y += velocity * math.sin(car_angle)
-    if abs(steering_angle) > 1e-4:
-        car_angle += (velocity / WHEELBASE) * math.tan(steering_angle)
+    # Use imported kbm function
+    car_x, car_y, car_angle = kbm.kinematic_bicycle_model(
+        car_x, car_y, car_angle, velocity, steering_angle, WHEELBASE, dt
+    )
 
-    # Draw car as a rotated rectangle, with rotation center 20% from rear
-    car_rect = pygame.Rect(0, 0, CAR_LENGTH, CAR_WIDTH)
-    # Compute the center of rotation in local car coordinates
-    # (0,0) is topleft, so offset from rear is (center_offset, CAR_WIDTH/2)
-    local_center = (center_offset, CAR_WIDTH/2)
-    # Compute the world position of the center of rotation
+    # Calculate turn radius (for display or debug)
+    if abs(steering_angle) > 1e-4:
+        turn_radius = WHEELBASE / math.tan(steering_angle)
+    else:
+        turn_radius = float('inf')
+
+    # Draw car as a rotated image, with rotation center 20% from rear
+    # Compute the center of rotation in local car coordinates (relative to image topleft)
+    local_center = (rear_axle_offset, CAR_WIDTH/2)
     car_center = (int(car_x), int(car_y))
-    # Create car surface
-    car_surf = pygame.Surface((CAR_LENGTH, CAR_WIDTH), pygame.SRCALPHA)
-    car_surf.fill(CAR_COLOR)
-    # Rotate the car surface
-    rotated_car = pygame.transform.rotate(car_surf, -math.degrees(car_angle))
-    # To blit so that the center of rotation is at car_x, car_y:
-    # Find the offset from the local center to the surface center, rotate it, and adjust blit position
-    surf_center = (CAR_LENGTH/2, CAR_WIDTH/2)
-    offset_x = surf_center[0] - local_center[0]
-    offset_y = surf_center[1] - local_center[1]
+    # Rotate the car image
+    rotated_car = pygame.transform.rotate(car_img, -math.degrees(car_angle))
+    # After rotation, the center of rotation moves; get the new offset
+    # Get the rect of the original image, and the rect of the rotated image
+    orig_rect = car_img.get_rect()
+    rot_rect = rotated_car.get_rect()
+    # The vector from the image center to the rotation center (in original image)
+    center_to_rot = (local_center[0] - orig_rect.width/2, local_center[1] - orig_rect.height/2)
+    # Rotate this vector
     cos_a = math.cos(car_angle)
     sin_a = math.sin(car_angle)
-    rot_offset_x = cos_a * offset_x - sin_a * offset_y
-    rot_offset_y = sin_a * offset_x + cos_a * offset_y
-    blit_x = car_center[0] - rotated_car.get_width()//2 + int(rot_offset_x)
-    blit_y = car_center[1] - rotated_car.get_height()//2 + int(rot_offset_y)
+    rot_x = cos_a * center_to_rot[0] - sin_a * center_to_rot[1]
+    rot_y = sin_a * center_to_rot[0] + cos_a * center_to_rot[1]
+    # The blit position is car_center minus the offset from rotated image center to rotation center
+    blit_x = car_center[0] - rot_rect.width//2 - int(rot_x)
+    blit_y = car_center[1] - rot_rect.height//2 - int(rot_y)
     window.blit(rotated_car, (blit_x, blit_y))
 
     # Draw steering state as a thin arrow from car center in the direction of the front wheel

@@ -75,16 +75,5 @@ while running:
     pygame.draw.circle(window, HEAD_COLOR, (head_cx, head_cy), head_radius)
     pygame.draw.circle(window, (0,0,0), (head_cx, head_cy), head_radius, 2)
 
-    # Draw direction triangle (rotated with head)
-    # tri_len = head_radius
-    # tri_angle = math.radians(angle)
-    # triangle_points = [
-    #     (head_cx + tri_len * math.cos(tri_angle), head_cy + tri_len * math.sin(tri_angle)),
-    #     (head_cx + tri_len * math.cos(tri_angle + 2.5), head_cy + tri_len * math.sin(tri_angle + 2.5)),
-    #     (head_cx + tri_len * math.cos(tri_angle - 2.5), head_cy + tri_len * math.sin(tri_angle - 2.5)),
-    # ]
-    # pygame.draw.polygon(window, (0,0,0), triangle_points)
-    # pygame.draw.polygon(window, (255,255,255), triangle_points, 2)
-
     pygame.display.flip()
     clock.tick(fps)
