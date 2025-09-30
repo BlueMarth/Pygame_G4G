@@ -12,11 +12,14 @@ color_list = ["gray15", "gray30", "gray45", "gray60"]
 stars = []
 
 for i in range(50):
-    rand = random.random()-0.5
-    x = SIZE[0]//2 + rand
-    y = SIZE[1]//2 + rand
+    # Use polar coordinates for more natural spread
+    min_dist = 30  # minimum distance from center
+    max_dist = min(SIZE)//2 - 10  # max distance from center
+    dist = random.uniform(min_dist, max_dist)
+    angle = random.uniform(0, 2*math.pi)
+    x = int(SIZE[0]//2 + dist * math.cos(angle))
+    y = int(SIZE[1]//2 + dist * math.sin(angle))
     radius = random.randrange(1, 3)
-    angle = random.randrange(0, 359)
     speed = radius / 2
     color = random.choice(color_list)
     stars.append([x, y, radius, angle, speed, color])
@@ -45,7 +48,7 @@ while not done:
         # compute displacement angle
         dx = math.cos(stars[i][3])
         dy = math.sin(stars[i][3])
-        
+
         # the closer the faster and bigger
         stars[i][0] += stars[i][4] * dx         # x position
         stars[i][1] += stars[i][4] * dy         # y position
@@ -55,13 +58,16 @@ while not done:
         # reset star position once outside of window
         if (((stars[i][0] <= 0) or (stars[i][0] >= SIZE[0]))
             or ((stars[i][1] <= 0) or (stars[i][1] >= SIZE[1]))):
-            rand = random.random()-0.5
-            stars[i][0] = SIZE[0]//2 + rand
-            stars[i][1] = SIZE[1]//2 + rand
+            min_dist = 30
+            max_dist = min(SIZE)//2 - 10
+            dist = random.uniform(min_dist, max_dist)
+            angle = random.uniform(0, 2*math.pi)
+            stars[i][0] = int(SIZE[0]//2 + dist * math.cos(angle))
+            stars[i][1] = int(SIZE[1]//2 + dist * math.sin(angle))
             stars[i][2] = random.randrange(1,3)
-            stars[i][3] = random.randrange(0, 359)
+            stars[i][3] = angle
 
-    print(stars)
+    #print(stars)
     pygame.display.flip()
     clock.tick(fps)
 pygame.quit

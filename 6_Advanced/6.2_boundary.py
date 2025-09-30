@@ -22,7 +22,7 @@ ball_size = 25
 normal_color = "lightskyblue4"
 collide_color = "lightskyblue"
 
-x, y = screen_width//2, screen_height//2 - 30
+x, y = screen_width//2, screen_height//2
 move_x = 0
 move_y = 0
 ball_color = normal_color
@@ -43,9 +43,9 @@ while True:
     
     if event.type == KEYDOWN:
         if event.key == pygame.K_RIGHT:
-            move_x = +0.1
+            move_x = +0.01
         elif event.key == pygame.K_LEFT:
-            move_x = -0.1
+            move_x = -0.01
     
     if event.type == KEYUP:
         if event.key == pygame.K_RIGHT:
@@ -53,17 +53,17 @@ while True:
         if event.key == pygame.K_LEFT:
             move_x = 0
 
-    # collision detection
+    # collision detection and clamping
     x += move_x
-    collide_case = checkCollision(x, ball_size, left_wall_size[0], right_wall_size[0])
-    if collide_case == 1:
-        x = left_wall_size[0] + ball_size//2
+    left_limit = left_wall_size[0] + ball_size//2
+    right_limit = 600 - right_wall_size[0] - ball_size//2
+    if x < left_limit:
+        x = left_limit
         ball_color = collide_color
-    elif collide_case == 2:
-        x = 600 - right_wall_size[0] - ball_size//2
+    elif x > right_limit:
+        x = right_limit
         ball_color = collide_color
     else:
         ball_color = normal_color
-        
-    
+
     pygame.display.update()

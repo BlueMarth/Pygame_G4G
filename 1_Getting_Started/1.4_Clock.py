@@ -10,4 +10,4 @@ while i<5:
     print(clock.get_time())
     # print compute the clock framerate
     print(clock.get_fps())
-    i = i + 1
+    i += 1

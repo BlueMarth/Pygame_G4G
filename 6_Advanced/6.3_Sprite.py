@@ -3,6 +3,7 @@ import pygame
 SCREEN_COLOR = "darkslategray"
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
+fps = 60
 
 
 class Sprite(pygame.sprite.Sprite):
@@ -67,4 +68,4 @@ while True:
     screen.fill(SCREEN_COLOR)
     all_sprites_list.draw(screen)
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(fps)

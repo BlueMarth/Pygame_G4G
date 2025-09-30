@@ -63,21 +63,16 @@ options_btn_drawPara = btnDrawPara[0]
 play_btn_drawPara = btnDrawPara[1]
 quit_btn_drawPara = btnDrawPara[2]
 
-options_img = pygame.image.load("visual/options_btn.png").convert()
-options_img = pygame.transform.scale(options_img, (side,side))
-play_img = pygame.image.load("visual/play_btn.png").convert()
-paly_img = pygame.transform.scale(play_img, (side,side))
-quit_img = pygame.image.load("visual/quit_btn.png").convert()
-quit_img = pygame.transform.scale(quit_img, (side,side))
+options_img_orig = pygame.image.load("visual/options_btn.png").convert()
+play_img_orig = pygame.image.load("visual/play_btn.png").convert()
+quit_img_orig = pygame.image.load("visual/quit_btn.png").convert()
 
-options_rect = options_img.get_rect()
-play_rect = play_img.get_rect()
-quit_rect = quit_img.get_rect()
-
-# print(btnDimensions[0][0:2]
-options_rect.center = btnDimensions[0][0:2]
-play_rect.center = btnDimensions[1][0:2]
-quit_rect.center = btnDimensions[2][0:2]
+def get_scaled_img_and_rect(img, drawPara):
+    x, y, w, h = drawPara
+    scaled_img = pygame.transform.scale(img, (w, h))
+    rect = scaled_img.get_rect()
+    rect.topleft = (x, y)
+    return scaled_img, rect
 
 running = True
 clicked_color = "lightblue"
@@ -141,13 +136,13 @@ while running:
         current_color = released_color
 
     screen.fill(("gray5"))
-    # options_btn = pygame.draw.rect(screen, current_color, options_btn_drawPara)
-    # play_btn = pygame.draw.rect(screen, current_color, play_btn_drawPara)
-    # quit_btn = pygame.draw.rect(screen, current_color, quit_btn_drawPara)
+    # Draw visually expanded/shrunk buttons
+    options_img, options_rect = get_scaled_img_and_rect(options_img_orig, options_btn_drawPara)
+    play_img, play_rect = get_scaled_img_and_rect(play_img_orig, play_btn_drawPara)
+    quit_img, quit_rect = get_scaled_img_and_rect(quit_img_orig, quit_btn_drawPara)
     screen.blit(options_img, options_rect)
     screen.blit(play_img, play_rect)
     screen.blit(quit_img, quit_rect)
-    
     pygame.display.update()
 
 pygame.quit()
