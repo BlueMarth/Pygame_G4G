@@ -171,75 +171,114 @@ class Boat(Vehicle):
         pass
 
 class Helicopter(Vehicle):
-    def __init__(self, x, y, params):
-        super().__init__(x, y)
-        self.max_velocity = params.get('max_velocity', 8)
-        self.acceleration = params.get('acceleration', 0.2)
-        self.drag = params.get('drag', 0.98)  # replaces friction
-        self.vertical_velocity = 0.0
-        self.altitude = params.get('altitude', 0.0)
-        self.lift = params.get('lift', 0.2)  # replaces vertical_acceleration
-        self.max_altitude = params.get('max_altitude', 1000)
-        self.ground_effect_strength = params.get('ground_effect_strength', 1.5)  # multiplier near ground
-        self.lift_decay_rate = params.get('lift_decay_rate', 2.0)  # exponential decay rate
+    def __init__(self, x, y, z, angle, params):
+        super().__init__(x, y, z, angle)
+        self.z = z
+        self.angle = angle
+        self.mass = params.get('mass', 1.0)
+        self.drag_coeff = params.get('drag_coeff', 0.3)
+        self.lift_force = params.get('lift_force', 0.5)
+        self.roll_force = params.get('roll_force', 0.15)
+        self.pitch_force = params.get('pitch_force', 0.2)
+        self.yaw_force = params.get('yaw_force', 0.1)
+        self.vx, self.vy, self.vz = 0.0, 0.0, 0.0
+        self.ang_vel = 0.0
+
+        # self.max_velocity = params.get('max_velocity', 8)
+        # self.acceleration = params.get('acceleration', 0.2)
+        # self.drag = params.get('drag', 0.98)  # replaces friction
+        # self.vertical_velocity = 0.0
+        # self.altitude = params.get('z', 0.0)
+        # self.lift = params.get('lift', 0.2)  # replaces vertical_acceleration
+        # self.max_altitude = params.get('max_altitude', 1000)
+        # self.ground_effect_strength = params.get('ground_effect_strength', 1.5)  # multiplier near ground
+        # self.lift_decay_rate = params.get('lift_decay_rate', 2.0)  # exponential decay rate
 
     def update(self, control, dt):
-        throttle = control.get('throttle', 0)
-        steer = control.get('steer', 0)
-        up = control.get('up', 0)
-        down = control.get('down', 0)
-        # Forward/backward
-        if throttle:
-            self.velocity += self.acceleration * dt
-            if self.velocity > self.max_velocity:
-                self.velocity = self.max_velocity
-        else:
-            self.velocity *= self.drag
-            if abs(self.velocity) < 1e-4:
-                self.velocity = 0
-        # Yaw (turn)
-        self.angle += steer * 0.04 * dt
-        self.x += self.velocity * math.cos(self.angle) * dt
-        self.y += self.velocity * math.sin(self.angle) * dt
-        # --- Vertical motion with lift, drag, and ground effect ---
-        # Ground effect: stronger lift near ground, decays concavely (slow at first, fast near max altitude)
-        # Effective lift = base_lift * (1 + ground_effect_strength * exp(-((1 - (altitude/max_altitude)) ** lift_decay_rate)))
-        if self.max_altitude > 0:
-            norm_alt = min(max(self.altitude / self.max_altitude, 0), 1)
-        else:
-            norm_alt = 0
-        ground_effect = self.ground_effect_strength * math.exp(-((1 - norm_alt) ** self.lift_decay_rate))
-        effective_lift = self.lift * (1 + ground_effect)
-        # Up/down controls
-        if up:
-            self.vertical_velocity += effective_lift * dt
-        if down:
-            self.vertical_velocity -= effective_lift * dt
-        self.altitude += self.vertical_velocity * dt
-        # Simulate vertical drag
-        self.vertical_velocity *= self.drag
-        if self.altitude < 0:
-            self.altitude = 0
-            self.vertical_velocity = 0
-        if self.altitude > self.max_altitude:
-            self.altitude = self.max_altitude
-            self.vertical_velocity = 0
+        # get control inputs
+        lift = control.get('lift', 0)
+        pitch = control.get('pitch', 0)
+        roll = control.get('roll', 0)
+        yaw = control.get('yaw', 0)
+        # compute drag
+        self.hor_speed = math.sqrt(self.vx**2 + self.vy**2)
+        self.hor_drag = 0.5 * self.drag_coeff * self.hor_speed**2 / self.mass
+        self.ver_drag = 0.5 * self.drag_coeff * self.vz**2 / self.mass
+        # compute lift force
+        self.lift_force = self.lift_force
 
+        # compute acceleration
+        # self.rol_acc = (self.roll_force - self.hor_drag) / self.mass
+        # self.pit_acc = (self.pitch_force - self.hor_drag) / self.mass
+        # self.yaw_acc = (self.yaw_force - self.hor_drag) / self.mass
+        # self.ver_acc = (self.lift_force - self.ver_drag) / self.mass
+        self.rol_acc = 0.1
+        self.pit_acc = 0.1
+        self.yaw_acc = 0.1
+        self.ver_acc = 0.1
+        # # compute max velocities
+        # self.max_rol_vel = math.sqrt((2 * self.roll_force) / self.drag_coeff)
+        # self.max_pit_vel = math.sqrt((2 * self.pitch_force) / self.drag_coeff)
+        # self.max_yaw_vel = math.sqrt((2 * self.yaw_force) / self.drag_coeff)
+        # self.max_ver_vel = math.sqrt((2 * self.lift_force) / self.drag_coeff)
+        
+        ''' foreaft velocity '''
+        if pitch > 0: # move forward
+            self.vx += self.pit_acc * dt
+        elif pitch < 0: # move backward
+            self.vx -= self.pit_acc * dt
+        else:
+            self.vx *= self.hor_drag
+            if abs(self.vx) < 1e-4:
+                self.vx = 0
+        '''sideways velocity'''
+        if roll > 0: # move right
+            self.vy += self.rol_acc * dt
+        elif roll < 0: # move left
+            self.vy -= self.rol_acc * dt
+        else:
+            self.vy *= self.hor_drag
+            if abs(self.vy) < 1e-4:
+                self.vy = 0
+        ''' turning velocity'''
+        if yaw > 0: # turn right
+            self.ang_vel += self.yaw_acc * dt
+        elif yaw < 0: # turn left
+            self.ang_vel -= self.yaw_acc * dt
+        else:
+            self.ang_vel *= self.hor_drag
+            if abs(self.ang_vel) < 1e-4:
+                self.ang_vel = 0
+        ''' vertical velocity '''
+        if lift > 0: # up
+            self.vz += self.ver_acc * dt
+        elif lift < 0: # down
+            self.vz -= self.ver_acc * dt
+        ''' position and heading update'''
+        self.x += self.vx * math.cos(self.angle) * dt - self.vy * math.sin(self.angle) * dt
+        self.y += self.vx * math.sin(self.angle) * dt + self.vy * math.cos(self.angle) * dt
+        self.z += self.vz * dt
+        self.angle += self.ang_vel * dt
+
+    
     def handle_input(self, keys):
-        control = {'throttle': 0, 'steer': 0, 'up': 0, 'down': 0}
-        if keys.get('w') or keys.get('up'):
-            control['throttle'] = 1
-        if keys.get('a') or keys.get('left'):
-            control['steer'] = -1
-        if keys.get('d') or keys.get('right'):
-            control['steer'] = 1
+        control = {'lift': 0, 'pitch': 0, 'roll': 0, 'yaw': 0}
         if keys.get('space'):
-            control['up'] = 1
+            control['lift'] = 1         # go up
+        if keys.get('Lshift'):
+            control['lift'] = -1        # go down
+        if keys.get('w'):
+            control['pitch'] = 1        # forward
         if keys.get('s'):
-            control['throttle'] = -1
-        # Double-tap and hold space for descend
-        if keys.get('descend'):
-            control['down'] = 1
+            control['pitch'] = -1       # backward
+        if keys.get('d'):
+            control['roll'] = 1         # slide right
+        if keys.get('a'):
+            control['roll'] = -1        # slide left
+        if keys.get('e'):
+            control['yaw'] = 1          # turn right
+        if keys.get('q'):
+            control['yaw'] = -1         # turn left
         return control
 
     def draw(self, surface):
